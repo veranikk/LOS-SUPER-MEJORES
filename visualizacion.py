@@ -1,0 +1,74 @@
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QDateEdit, QTableWidget, QTableWidgetItem
+from PyQt5.QtCore import QDate
+
+class VisualizacionIncidenciaTab(QWidget):
+    def __init__(self, incidencias):
+        super().__init__()
+        self.incidencias = incidencias
+        self.init_ui()
+
+    def init_ui(self):
+        layout = QVBoxLayout()
+
+        filtros_layout = QHBoxLayout()
+
+        self.filtro_estado = QComboBox()
+        self.filtro_estado.addItem("Todos")
+        self.filtro_estado.addItems(["Abierta", "En Progreso", "Cerrada"])
+        self.filtro_estado.currentIndexChanged.connect(self.aplicar_filtros)
+        filtros_layout.addWidget(QLabel("Estado:"))
+        filtros_layout.addWidget(self.filtro_estado)
+
+        self.filtro_prioridad = QComboBox()
+        self.filtro_prioridad.addItem("Todas")
+        self.filtro_prioridad.addItems(["Baja", "Media", "Alta"])
+        self.filtro_prioridad.currentIndexChanged.connect(self.aplicar_filtros)
+        filtros_layout.addWidget(QLabel("Prioridad:"))
+        filtros_layout.addWidget(self.filtro_prioridad)
+
+        self.filtro_fecha = QDateEdit()
+        self.filtro_fecha.setCalendarPopup(True)
+        self.filtro_fecha.setDate(QDate.currentDate())
+        self.filtro_fecha.dateChanged.connect(self.aplicar_filtros)
+        filtros_layout.addWidget(QLabel("Fecha mínima:"))
+        filtros_layout.addWidget(self.filtro_fecha)
+
+        layout.addLayout(filtros_layout)
+
+        self.tabla = QTableWidget()
+        self.tabla.setColumnCount(5)
+        self.tabla.setHorizontalHeaderLabels(["Título", "Descripción", "Estado", "Prioridad", "Fecha"])
+        self.tabla.setEditTriggers(QTableWidget.NoEditTriggers)
+        layout.addWidget(self.tabla)
+
+        self.setLayout(layout)
+
+        self.aplicar_filtros()
+
+    def aplicar_filtros(self):
+        estado_filtro = self.filtro_estado.currentText()
+        prioridad_filtro = self.filtro_prioridad.currentText()
+        fecha_filtro = self.filtro_fecha.date()
+
+        incidencias_filtradas = []
+
+        for inc in self.incidencias:
+            if estado_filtro != "Todos" and inc["estado"] != estado_filtro:
+                continue
+            if prioridad_filtro != "Todas" and inc["prioridad"] != prioridad_filtro:
+                continue
+            fecha_inc = QDate.fromString(inc["fecha"], "yyyy-MM-dd")
+            if fecha_inc < fecha_filtro:
+                continue
+            incidencias_filtradas.append(inc)
+
+        self.llenar_tabla(incidencias_filtradas)
+
+    def llenar_tabla(self, datos):
+        self.tabla.setRowCount(len(datos))
+        for fila, inc in enumerate(datos):
+            self.tabla.setItem(fila, 0, QTableWidgetItem(inc["titulo"]))
+            self.tabla.setItem(fila, 1, QTableWidgetItem(inc["descripcion"]))
+            self.tabla.setItem(fila, 2, QTableWidgetItem(inc["estado"]))
+            self.tabla.setItem(fila, 3, QTableWidgetItem(inc["prioridad"]))
+            self.tabla.setItem(fila, 4, QTableWidgetItem(inc["fecha"]))
