@@ -3,19 +3,19 @@ from registro import RegistroIncidenciaTab
 from visualizacion import VisualizacionIncidenciaTab
 
 class MainWindow(QWidget):
-    def __init__(self):
+    def __init__(self, id_us=1):
         super().__init__()
         self.setWindowTitle("Sistema de Gestión de Incidencias")
         self.setGeometry(150, 150, 600, 400)
-        self.incidencias = []
+        self.id_us = id_us  # Usuario logueado
         self.init_ui()
 
     def init_ui(self):
         layout = QVBoxLayout()
         self.tabs = QTabWidget()
 
-        self.visualizacion_tab = VisualizacionIncidenciaTab(self.incidencias)
-        self.registro_tab = RegistroIncidenciaTab(self.incidencias, self.actualizar_visualizacion)
+        self.visualizacion_tab = VisualizacionIncidenciaTab()
+        self.registro_tab = RegistroIncidenciaTab(self.actualizar_visualizacion, id_us=self.id_us)
 
         self.tabs.addTab(self.registro_tab, "Registrar Incidencia")
         self.tabs.addTab(self.visualizacion_tab, "Visualizar Incidencias")
