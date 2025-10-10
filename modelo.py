@@ -149,38 +149,15 @@ def generar_textos(num):
         cat = random.choice(categorias)
         texto = random.choice(frases[cat])
         sufijos = [
-    "",
-    " ayer",
-    " esta mañana",
-    " desde ayer",
-    " hoy",
-    " hace una hora",
-    " hace unos minutos",
-    " esta tarde",
-    " desde hace una semana",
-    " desde hace un mes",
-    " hace dos días",
-    " durante el fin de semana",
-    " esta madrugada",
-    " durante la noche",
-    " en el último minuto",
-    " hace poco",
-    " recientemente",
-    " a primera hora",
-    " al mediodía",
-    " al final del día",
-    " durante la actualización",
-    " en la última versión",
-    " tras el reinicio",
-    " desde el último parche",
-    " mientras se realizaba la prueba",
-    " en el último ciclo",
-    " tras la intervención",
-    " en el horario laboral",
-    " fuera del horario laboral",
-    " en el mantenimiento programado",
-]
-
+            "", " ayer", " esta mañana", " desde ayer", " hoy", " hace una hora",
+            " hace unos minutos", " esta tarde", " desde hace una semana", " desde hace un mes",
+            " hace dos días", " durante el fin de semana", " esta madrugada", " durante la noche",
+            " en el último minuto", " hace poco", " recientemente", " a primera hora", " al mediodía",
+            " al final del día", " durante la actualización", " en la última versión", " tras el reinicio",
+            " desde el último parche", " mientras se realizaba la prueba", " en el último ciclo",
+            " tras la intervención", " en el horario laboral", " fuera del horario laboral",
+            " en el mantenimiento programado",
+        ]
         texto += random.choice(sufijos)
         textos.append(preprocesar(texto))
         etiquetas.append(cat)

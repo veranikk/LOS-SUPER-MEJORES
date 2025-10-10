@@ -1,5 +1,6 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QLineEdit, QComboBox, QPushButton, QMessageBox
 import db_queries as db
+from modelo import vectorizer, model, preprocesar
 
 class RegistroIncidenciaTab(QWidget):
     def __init__(self, actualizar_tabla_callback, id_us=1):
@@ -22,17 +23,17 @@ class RegistroIncidenciaTab(QWidget):
         layout.addWidget(self.input_descripcion)
 
         # Estado
+        layout.addWidget(QLabel("Estado:"))
         self.combo_estado = QComboBox()
         self.combo_estado.addItems(["Abierta", "En progreso", "Cerrada"])
-        layout.addWidget(QLabel("Estado:"))
         layout.addWidget(self.combo_estado)
 
-        # Prioridad (categorías)
-        self.combo_prioridad = QComboBox()
-        categorias = db.obtener_categorias()
-        for c in categorias:
-            self.combo_prioridad.addItem(c[1])
+        # Prioridad / Categoría (desde BD)
         layout.addWidget(QLabel("Prioridad:"))
+        self.combo_prioridad = QComboBox()
+        self.categorias = db.obtener_categorias()
+        for c in self.categorias:
+            self.combo_prioridad.addItem(c[1])
         layout.addWidget(self.combo_prioridad)
 
         # Botón guardar
@@ -46,22 +47,19 @@ class RegistroIncidenciaTab(QWidget):
         titulo = self.input_titulo.text().strip()
         descripcion = self.input_descripcion.text().strip()
         estado = self.combo_estado.currentText()
-        prioridad = self.combo_prioridad.currentText()
+        id_cat = self.categorias[self.combo_prioridad.currentIndex()][0]
 
         if not titulo or not descripcion:
             QMessageBox.warning(self, "Error", "Debe completar título y descripción")
             return
 
-        # Obtener id_cat según la prioridad seleccionada
-        categorias = db.obtener_categorias()
-        id_cat = 1
-        for c in categorias:
-            if c[1] == prioridad:
-                id_cat = c[0]
-                break
+        # 🔹 Predecir prioridad con la IA
+        texto_procesado = preprocesar(descripcion)
+        texto_vect = vectorizer.transform([texto_procesado])
+        prioridad_pred = model.predict(texto_vect)[0]
 
-        db.insertar_incidencia(titulo, descripcion, estado, self.id_us, id_cat)
-        QMessageBox.information(self, "Éxito", "Incidencia registrada correctamente")
+        db.insertar_incidencia(titulo, descripcion, estado, self.id_us, id_cat, prioridad=prioridad_pred)
+        QMessageBox.information(self, "Éxito", f"Incidencia registrada correctamente con prioridad '{prioridad_pred}'")
 
         self.limpiar_campos()
         self.actualizar_tabla_callback()

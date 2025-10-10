@@ -1,5 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QDateEdit, QTableWidget, QTableWidgetItem
-from PyQt5.QtCore import QDate
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QComboBox, QTableWidget, QTableWidgetItem
 import db_queries as db
 
 class VisualizacionIncidenciaTab(QWidget):
@@ -30,20 +29,12 @@ class VisualizacionIncidenciaTab(QWidget):
         filtros_layout.addWidget(QLabel("Prioridad:"))
         filtros_layout.addWidget(self.filtro_prioridad)
 
-        # Filtro fecha (opcional, columna fecha ficticia)
-        self.filtro_fecha = QDateEdit()
-        self.filtro_fecha.setCalendarPopup(True)
-        self.filtro_fecha.setDate(QDate.currentDate())
-        self.filtro_fecha.dateChanged.connect(self.aplicar_filtros)
-        filtros_layout.addWidget(QLabel("Fecha mínima:"))
-        filtros_layout.addWidget(self.filtro_fecha)
-
         layout.addLayout(filtros_layout)
 
         # Tabla
         self.tabla = QTableWidget()
-        self.tabla.setColumnCount(5)
-        self.tabla.setHorizontalHeaderLabels(["Título", "Descripción", "Estado", "Prioridad", "Fecha"])
+        self.tabla.setColumnCount(4)
+        self.tabla.setHorizontalHeaderLabels(["Título", "Descripción", "Estado", "Prioridad"])
         self.tabla.setEditTriggers(QTableWidget.NoEditTriggers)
         layout.addWidget(self.tabla)
 
@@ -54,16 +45,12 @@ class VisualizacionIncidenciaTab(QWidget):
         self.incidencias = db.obtener_incidencias()
         estado_filtro = self.filtro_estado.currentText()
         prioridad_filtro = self.filtro_prioridad.currentText()
-        fecha_filtro = self.filtro_fecha.date()
 
         incidencias_filtradas = []
         for inc in self.incidencias:
             if estado_filtro != "Todos" and inc["estado"] != estado_filtro:
                 continue
             if prioridad_filtro != "Todas" and inc["prioridad"] != prioridad_filtro:
-                continue
-            fecha_inc = QDate.fromString(inc["fecha"], "yyyy-MM-dd")
-            if fecha_inc < fecha_filtro:
                 continue
             incidencias_filtradas.append(inc)
 
@@ -76,4 +63,3 @@ class VisualizacionIncidenciaTab(QWidget):
             self.tabla.setItem(fila, 1, QTableWidgetItem(inc["descripcion"]))
             self.tabla.setItem(fila, 2, QTableWidgetItem(inc["estado"]))
             self.tabla.setItem(fila, 3, QTableWidgetItem(inc["prioridad"]))
-            self.tabla.setItem(fila, 4, QTableWidgetItem(inc["fecha"]))
