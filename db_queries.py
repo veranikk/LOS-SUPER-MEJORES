@@ -1,6 +1,5 @@
 import sqlite3
 
-# 📍 Ruta a tu base de datos
 DB_PATH = r"BBDD-SQLITE.db"
 
 def connect_db():
@@ -13,7 +12,7 @@ def close_db(conn):
     conn.close()
 
 
-# ================= Usuarios =================
+# Este método sirve para devolver todos los datos de los usuarios existentes
 def obtener_usuarios():
     conn, cursor = connect_db()
     cursor.execute("SELECT id_us, nombre_us, correo_us FROM usuarios")
@@ -21,6 +20,7 @@ def obtener_usuarios():
     close_db(conn)
     return usuarios
 
+# Este método sirve para verificar que el usuario y la contraseña introducida en la aplicación se encuentren dentro de la bbdd.
 def validar_usuario(usuario, contrasena):
     conn, cursor = connect_db()
     cursor.execute(
@@ -31,6 +31,7 @@ def validar_usuario(usuario, contrasena):
     close_db(conn)
     return resultado
 
+# Este método sirve para generar un nuevo usuario, este contendrá su nombre, contraseña y correo
 def crear_usuario(nombre, contrasena, correo):
     conn, cursor = connect_db()
     cursor.execute(
@@ -40,7 +41,7 @@ def crear_usuario(nombre, contrasena, correo):
     close_db(conn)
 
 
-# ================= Categorías =================
+# Este método sirve para devolver todos los datos de la tabla de categorías
 def obtener_categorias():
     conn, cursor = connect_db()
     cursor.execute("SELECT id_cat, nivel FROM categorias")
@@ -49,7 +50,7 @@ def obtener_categorias():
     return categorias
 
 
-# ================= Incidencias =================
+# Este sirve para insertar una nueva incidencia dentro de la bbdd, junto con su titulo, descripción, estado, id del usuario, id de la categoría, el tiempode resolución siempre será 0
 def insertar_incidencia(titulo, descripcion, estado, id_us, id_cat, tiempo_resol=0):
     conn, cursor = connect_db()
     cursor.execute("""
@@ -58,6 +59,7 @@ def insertar_incidencia(titulo, descripcion, estado, id_us, id_cat, tiempo_resol
     """, (titulo, descripcion, estado, tiempo_resol, id_us, id_cat))
     close_db(conn)
 
+# Este sirve para mostrar todas las incidencias que se encuentren dentro de la bbdd, devolverá todos los campos, se guardan los datos dentro de una array llamada incidencias
 def obtener_incidencias():
     conn, cursor = connect_db()
     cursor.execute("""
@@ -78,11 +80,13 @@ def obtener_incidencias():
         })
     return incidencias
 
+# Este sirve para borrar una incidencia de la bbdd, para esto tendremos que pasarle como parametro la id de la incidencia, para saber cual de todas borrar
 def borrar_incidencia(id_in):
     conn, cursor = connect_db()
     cursor.execute("DELETE FROM incidencias WHERE id_in=?", (id_in,))
     close_db(conn)
 
+# Este sirve para actualizar una incidencia de nuestra bbdd, esta dependerá de la id de la incidencia que pasemos como parámetro
 def actualizar_estado_incidencia(id_in, nuevo_estado):
     conn, cursor = connect_db()
     cursor.execute("UPDATE incidencias SET estado_in=? WHERE id_in=?", (nuevo_estado, id_in))

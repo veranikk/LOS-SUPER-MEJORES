@@ -7,16 +7,17 @@ import db_queries as db
 
 
 class VisualizacionIncidenciaTab(QWidget):
+    #Este es el constructor de la parte de visualización de incidencias
     def __init__(self):
         super().__init__()
         self.incidencias = []
         self.init_ui()
-
+    #Este es el método que sirve para generar la pestaña visual de la parte de visualización de incidencias
     def init_ui(self):
         layout = QVBoxLayout()
         filtros_layout = QHBoxLayout()
 
-        # Filtro estado
+        #Este es un combobox el cual sirve para el filtrado de incidencias según el tipo de estado seleccionado, cuando cambie de estado en la selección se hará el filtrado 
         self.filtro_estado = QComboBox()
         self.filtro_estado.addItem("Todos")
         self.filtro_estado.addItems(["Abierta", "En progreso", "Cerrada"])
@@ -24,7 +25,7 @@ class VisualizacionIncidenciaTab(QWidget):
         filtros_layout.addWidget(QLabel("Estado:"))
         filtros_layout.addWidget(self.filtro_estado)
 
-        # Filtro prioridad
+        #Esta parte del códgio sirve para filtrar según el tipo de prioridad, asi haciendo un filtrado de todas las incidencias de la bbdd
         self.filtro_prioridad = QComboBox()
         self.filtro_prioridad.addItem("Todas")
         categorias = db.obtener_categorias()
@@ -36,13 +37,13 @@ class VisualizacionIncidenciaTab(QWidget):
 
         layout.addLayout(filtros_layout)
 
-        # Tabla
+        #Esta parte del código genera la tabla junto con las columnas y sus nombres
         self.tabla = QTableWidget()
         self.tabla.setColumnCount(6)
         self.tabla.setHorizontalHeaderLabels(["ID", "Título", "Descripción", "Estado", "Prioridad", "Acciones"])
         self.tabla.setEditTriggers(QTableWidget.NoEditTriggers)
 
-        # Hacer la tabla responsive
+        # Hacer la tabla adaptada según los tamaños de los datos 
         header = self.tabla.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.Stretch)
         header.setSectionResizeMode(0, QHeaderView.ResizeToContents)  # ID ajustado
@@ -58,6 +59,8 @@ class VisualizacionIncidenciaTab(QWidget):
         self.setLayout(layout)
         self.aplicar_filtros()
 
+    #Este método sirve para los filtros que se hayan realizado aplicarlos, se almacenarán todas las incidencias filtradas
+    #la tabla se actualizará con todas las incidencias que hayan sido filtradas
     def aplicar_filtros(self):
         self.incidencias = db.obtener_incidencias()
         estado_filtro = self.filtro_estado.currentText()
@@ -72,7 +75,7 @@ class VisualizacionIncidenciaTab(QWidget):
             incidencias_filtradas.append(inc)
 
         self.llenar_tabla(incidencias_filtradas)
-
+    #Este sirve para rellenar la tabla con todas las incidencias
     def llenar_tabla(self, datos):
         self.tabla.setRowCount(len(datos))
 
@@ -98,7 +101,7 @@ class VisualizacionIncidenciaTab(QWidget):
 
             self.tabla.setItem(fila, 4, QTableWidgetItem(inc["prioridad"]))
 
-            # Botón Borrar más grande
+            # Botón de borrar, para borrar una incidencia de la base de datos
             btn_borrar = QPushButton("Borrar")
             btn_borrar.setFixedHeight(35)
             btn_borrar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -113,13 +116,14 @@ class VisualizacionIncidenciaTab(QWidget):
             widget_btns.setLayout(layout_btns)
             self.tabla.setCellWidget(fila, 5, widget_btns)
 
-        # Autoajustar filas tras llenado
+        # Autoajustar las filas según los datos que se muestren dentro
         self.tabla.resizeRowsToContents()
 
+    #Este sirve para actualizar el estado de la incidencia modificada
     def actualizar_estado(self, id_in, nuevo_estado):
         db.actualizar_estado_incidencia(id_in, nuevo_estado)
         self.aplicar_filtros()
-
+    #Este método sirve para borrar una incidencia de la base de datos
     def borrar_incidencia(self, id_in):
         db.borrar_incidencia(id_in)
         self.aplicar_filtros()

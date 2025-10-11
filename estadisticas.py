@@ -11,7 +11,7 @@ class EstadisticasTab(QWidget):
     def init_ui(self):
         layout = QVBoxLayout()
 
-        # Título
+        # Título dentro del programa del apartado de estádisticas.
         titulo = QLabel("📊 Estadísticas de Incidencias")
         titulo.setStyleSheet("font-size: 18px; font-weight: bold; margin-bottom: 10px;")
         layout.addWidget(titulo)
