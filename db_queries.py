@@ -50,18 +50,18 @@ def obtener_categorias():
 
 
 # ================= Incidencias =================
-def insertar_incidencia(titulo, descripcion, estado, id_us, id_cat, prioridad=None, tiempo_resol=0):
+def insertar_incidencia(titulo, descripcion, estado, id_us, id_cat, tiempo_resol=0):
     conn, cursor = connect_db()
     cursor.execute("""
-        INSERT INTO incidencias (nombre_in, descripcion_in, estado_in, tiempo_resol, id_us, id_cat, prioridad_in)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (titulo, descripcion, estado, tiempo_resol, id_us, id_cat, prioridad))
+        INSERT INTO incidencias (nombre_in, descripcion_in, estado_in, tiempo_resol, id_us, id_cat)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (titulo, descripcion, estado, tiempo_resol, id_us, id_cat))
     close_db(conn)
 
 def obtener_incidencias():
     conn, cursor = connect_db()
     cursor.execute("""
-        SELECT i.nombre_in, i.descripcion_in, i.estado_in, i.prioridad_in, c.nivel, i.tiempo_resol
+        SELECT i.id_in, i.nombre_in, i.descripcion_in, i.estado_in, c.nivel, i.tiempo_resol
         FROM incidencias i
         JOIN categorias c ON i.id_cat = c.id_cat
     """)
@@ -70,9 +70,20 @@ def obtener_incidencias():
     incidencias = []
     for r in resultados:
         incidencias.append({
-            "titulo": r[0],
-            "descripcion": r[1],
-            "estado": r[2],
-            "prioridad": r[3] if r[3] else r[4],  # usar prioridad calculada o nivel
+            "id_in": r[0],
+            "titulo": r[1],
+            "descripcion": r[2],
+            "estado": r[3],
+            "prioridad": r[4] if r[4] else r[5],  # usar nivel de categoría o tiempo_resol como fallback
         })
     return incidencias
+
+def borrar_incidencia(id_in):
+    conn, cursor = connect_db()
+    cursor.execute("DELETE FROM incidencias WHERE id_in=?", (id_in,))
+    close_db(conn)
+
+def actualizar_estado_incidencia(id_in, nuevo_estado):
+    conn, cursor = connect_db()
+    cursor.execute("UPDATE incidencias SET estado_in=? WHERE id_in=?", (nuevo_estado, id_in))
+    close_db(conn)

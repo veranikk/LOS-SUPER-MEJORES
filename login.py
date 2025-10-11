@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QLineEdit, QPushButton, QMessageBox
 import db_queries as db
 
+
 class LoginWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -26,14 +27,13 @@ class LoginWindow(QWidget):
         h_contrasena.addWidget(self.input_contrasena)
         self.layout.addLayout(h_contrasena)
 
-        # Correo (solo para registro, oculto al inicio)
+        # Correo (solo para registro)
         h_correo = QHBoxLayout()
         h_correo.addWidget(QLabel("Correo:"))
         self.input_correo = QLineEdit()
         h_correo.addWidget(self.input_correo)
         self.layout.addLayout(h_correo)
         self.input_correo.hide()
-        h_correo.item = h_correo  # guardamos referencia para mostrar luego
         self.h_correo_layout = h_correo
 
         # Botones
@@ -45,32 +45,43 @@ class LoginWindow(QWidget):
         self.layout.addWidget(self.btn_registrar)
 
         self.setLayout(self.layout)
-        self.modo_registro = False  # Flag para saber si estamos en modo registro
+        self.modo_registro = False
 
     def validar_login(self):
-        usuario = self.input_usuario.text()
-        contrasena = self.input_contrasena.text()
+        usuario = self.input_usuario.text().strip()
+        contrasena = self.input_contrasena.text().strip()
+
+        if not usuario or not contrasena:
+            QMessageBox.warning(self, "Error", "Debe ingresar usuario y contraseña")
+            return
+
         resultado = db.validar_usuario(usuario, contrasena)
         if resultado:
+            id_us = resultado[0] if isinstance(resultado, tuple) else 1  # suponiendo que devuelve (id, usuario)
             QMessageBox.information(self, "Bienvenido", f"Usuario {usuario} validado")
-            self.abrir_principal()
+            self.abrir_principal(id_us)
         else:
             QMessageBox.warning(self, "Error", "Usuario o contraseña incorrectos")
 
     def mostrar_registro(self):
         if not self.modo_registro:
-            # Mostrar campo de correo
             self.input_correo.show()
             self.modo_registro = True
             self.btn_registrar.setText("Confirmar Registro")
         else:
-            # Registrar usuario
-            usuario = self.input_usuario.text()
-            contrasena = self.input_contrasena.text()
-            correo = self.input_correo.text()
+            usuario = self.input_usuario.text().strip()
+            contrasena = self.input_contrasena.text().strip()
+            correo = self.input_correo.text().strip()
+
             if not usuario or not contrasena or not correo:
                 QMessageBox.warning(self, "Error", "Debe completar todos los campos")
                 return
+
+            # ✅ Validación de correo
+            if "@" not in correo or "." not in correo:
+                QMessageBox.warning(self, "Correo inválido", "El correo debe contener '@' y '.'")
+                return
+
             try:
                 db.crear_usuario(usuario, contrasena, correo)
                 QMessageBox.information(self, "Éxito", "Usuario registrado correctamente")
@@ -81,8 +92,9 @@ class LoginWindow(QWidget):
             except Exception as e:
                 QMessageBox.warning(self, "Error", f"No se pudo registrar el usuario: {e}")
 
-    def abrir_principal(self):
+    def abrir_principal(self, id_us=1):
+        """Abre la ventana principal después del login."""
         from main_window import MainWindow
-        self.main_window = MainWindow()
+        self.main_window = MainWindow(id_us=id_us)
         self.main_window.show()
         self.close()

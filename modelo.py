@@ -4,10 +4,11 @@ from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import classification_report
 import random
 
+# Función de preprocesamiento
 def preprocesar(texto):
-    return texto.lower()
+    return texto.lower().strip()
 
-# Frases base según gravedad
+# Frases originales por categoría con mejora de casos graves
 frases = {
     "bajo": [
         "Error menor en la interfaz",
@@ -136,50 +137,53 @@ frases = {
         "Interrupción de servicios gubernamentales",
         "Destrucción de datos irrecuperable",
         "Fallo crítico en sistemas de salud",
+        # Nuevos casos de emergencia añadidos
+        "Incendio en el equipo",
+        "Fuego en el ordenador",
+        "Riesgo eléctrico grave",
+        "Explosión potencial",
+        "Emergencia crítica de seguridad",
     ]
 }
 
+# Datos globales para permitir aprendizaje incremental
+X_textos, y_etiquetas = [], []
 
-# Función para generar textos aleatorios
 def generar_textos(num):
-    textos = []
-    etiquetas = []
+    textos, etiquetas = [], []
     categorias = list(frases.keys())
+    sufijos = ["", " ayer", " hoy", " desde hace una hora", " recientemente", " durante la noche"]
     for _ in range(num):
         cat = random.choice(categorias)
         texto = random.choice(frases[cat])
-        sufijos = [
-            "", " ayer", " esta mañana", " desde ayer", " hoy", " hace una hora",
-            " hace unos minutos", " esta tarde", " desde hace una semana", " desde hace un mes",
-            " hace dos días", " durante el fin de semana", " esta madrugada", " durante la noche",
-            " en el último minuto", " hace poco", " recientemente", " a primera hora", " al mediodía",
-            " al final del día", " durante la actualización", " en la última versión", " tras el reinicio",
-            " desde el último parche", " mientras se realizaba la prueba", " en el último ciclo",
-            " tras la intervención", " en el horario laboral", " fuera del horario laboral",
-            " en el mantenimiento programado",
-        ]
         texto += random.choice(sufijos)
         textos.append(preprocesar(texto))
         etiquetas.append(cat)
     return textos, etiquetas
 
-# Generar 1000 ejemplos sintéticos
-textos, etiquetas = generar_textos(1000)
+# Inicializar dataset
+X_textos, y_etiquetas = generar_textos(1000)
 
-# Dividir en entrenamiento y prueba
-X_train, X_test, y_train, y_test = train_test_split(
-    textos, etiquetas, test_size=0.2, random_state=42, stratify=etiquetas
-)
-
-# Vectorizar textos
+# Vectorizador y modelo globales
 vectorizer = TfidfVectorizer()
-X_train_vect = vectorizer.fit_transform(X_train)
-X_test_vect = vectorizer.transform(X_test)
-
-# Entrenar modelo
+X_vect = vectorizer.fit_transform(X_textos)
 model = MultinomialNB()
-model.fit(X_train_vect, y_train)
+model.fit(X_vect, y_etiquetas)
 
-# Predecir y evaluar
-y_pred = model.predict(X_test_vect)
-print(classification_report(y_test, y_pred, zero_division=0))
+# Función para predecir prioridad
+def predecir_prioridad(texto):
+    texto_proc = preprocesar(texto)
+    vect = vectorizer.transform([texto_proc])
+    return model.predict(vect)[0]
+
+# Función para aprender una nueva incidencia y reentrenar
+def aprender_incidencia(texto, prioridad):
+    global X_textos, y_etiquetas, vectorizer, model
+    X_textos.append(preprocesar(texto))
+    y_etiquetas.append(prioridad)
+
+    # Reentrenar vectorizador y modelo
+    vectorizer = TfidfVectorizer()
+    X_vect = vectorizer.fit_transform(X_textos)
+    model = MultinomialNB()
+    model.fit(X_vect, y_etiquetas)
