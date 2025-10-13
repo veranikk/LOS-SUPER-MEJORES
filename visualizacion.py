@@ -5,13 +5,14 @@ from PyQt5.QtWidgets import (
 from PyQt5.QtCore import Qt
 import db_queries as db
 
-
 class VisualizacionIncidenciaTab(QWidget):
     #Este es el constructor de la parte de visualización de incidencias
-    def __init__(self):
+    def __init__(self, actualizar_graficas_callback=None):
         super().__init__()
         self.incidencias = []
+        self.actualizar_graficas_callback = actualizar_graficas_callback  # 🔹 Callback para actualizar gráficas
         self.init_ui()
+
     #Este es el método que sirve para generar la pestaña visual de la parte de visualización de incidencias
     def init_ui(self):
         layout = QVBoxLayout()
@@ -75,6 +76,7 @@ class VisualizacionIncidenciaTab(QWidget):
             incidencias_filtradas.append(inc)
 
         self.llenar_tabla(incidencias_filtradas)
+
     #Este sirve para rellenar la tabla con todas las incidencias
     def llenar_tabla(self, datos):
         self.tabla.setRowCount(len(datos))
@@ -123,7 +125,14 @@ class VisualizacionIncidenciaTab(QWidget):
     def actualizar_estado(self, id_in, nuevo_estado):
         db.actualizar_estado_incidencia(id_in, nuevo_estado)
         self.aplicar_filtros()
+        # 🔹 Actualiza gráficas si hay callback
+        if self.actualizar_graficas_callback:
+            self.actualizar_graficas_callback()
+
     #Este método sirve para borrar una incidencia de la base de datos
     def borrar_incidencia(self, id_in):
         db.borrar_incidencia(id_in)
         self.aplicar_filtros()
+        # 🔹 Actualiza gráficas si hay callback
+        if self.actualizar_graficas_callback:
+            self.actualizar_graficas_callback()
