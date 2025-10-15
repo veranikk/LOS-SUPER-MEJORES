@@ -62,7 +62,7 @@ class EstadisticasTab(QWidget):
                 shadow=True,
                 colors=colores[:len(categorias)],
                 textprops={'fontsize': 10},
-                radius=1.2,  # 🔹 Círculo más grande
+                radius=1.2,  # Círculo más grande
                 wedgeprops={'linewidth': 1, 'edgecolor': 'white'}  # borde blanco entre secciones
             )
             for t in texts:

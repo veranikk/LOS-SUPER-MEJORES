@@ -15,11 +15,12 @@ class MainWindow(QWidget):
         layout = QVBoxLayout()
         self.tabs = QTabWidget()
 
-        # 🔹 Pasamos la función actualizar_grafico como callback
+        # Pasamos la función actualizar_grafico como callback
         self.visualizacion_tab = VisualizacionIncidenciaTab(actualizar_graficas_callback=self.actualizar_visualizacion)
         self.estadisticas_tab = EstadisticasTab()
         self.registro_tab = RegistroIncidenciaTab(self.actualizar_visualizacion, id_us=self.id_us)
 
+        # Se agregan las pestañas al contenedor
         self.tabs.addTab(self.registro_tab, "Registrar Incidencia")
         self.tabs.addTab(self.visualizacion_tab, "Visualizar Incidencias")
         self.tabs.addTab(self.estadisticas_tab, "Estadísticas")
