@@ -44,15 +44,15 @@ class VisualizacionIncidenciaTab(QWidget):
         self.tabla.setHorizontalHeaderLabels(["ID", "Título", "Descripción", "Estado", "Prioridad", "Acciones"])
         self.tabla.setEditTriggers(QTableWidget.NoEditTriggers)
 
-        # Hacer la tabla adaptada según los tamaños de los datos 
+        #Hacer la tabla adaptada según los tamaños de los datos 
         header = self.tabla.horizontalHeader()
         header.setSectionResizeMode(QHeaderView.Stretch)
-        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)  # ID ajustado
-        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)  # Título ajustado
-        header.setSectionResizeMode(2, QHeaderView.Stretch)           # Descripción ocupa más espacio
-        header.setSectionResizeMode(5, QHeaderView.ResizeToContents)  # Botones
+        header.setSectionResizeMode(0, QHeaderView.ResizeToContents)  #ID ajustado
+        header.setSectionResizeMode(1, QHeaderView.ResizeToContents)  #Título ajustado
+        header.setSectionResizeMode(2, QHeaderView.Stretch)           #Descripción ocupa más espacio
+        header.setSectionResizeMode(5, QHeaderView.ResizeToContents)  #Botones
 
-        # Ajustar altura de filas automáticamente
+        #Ajustar altura de filas automáticamente
         self.tabla.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
         self.tabla.setWordWrap(True)
 
@@ -94,7 +94,7 @@ class VisualizacionIncidenciaTab(QWidget):
             self.tabla.setItem(fila, 1, item_titulo)
             self.tabla.setItem(fila, 2, item_desc)
 
-            # Estado editable con ComboBox
+            #Estado editable con ComboBox
             combo_estado = QComboBox()
             combo_estado.addItems(["Abierta", "En progreso", "Cerrada"])
             combo_estado.setCurrentText(inc["estado"])
@@ -103,7 +103,8 @@ class VisualizacionIncidenciaTab(QWidget):
 
             self.tabla.setItem(fila, 4, QTableWidgetItem(inc["prioridad"]))
 
-            # Botón de borrar, para borrar una incidencia de la base de datos
+            #Botón de borrar, para borrar una incidencia de la base de datos
+            
             btn_borrar = QPushButton("Borrar")
             btn_borrar.setFixedHeight(35)
             btn_borrar.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
@@ -118,14 +119,15 @@ class VisualizacionIncidenciaTab(QWidget):
             widget_btns.setLayout(layout_btns)
             self.tabla.setCellWidget(fila, 5, widget_btns)
 
-        # Autoajustar las filas según los datos que se muestren dentro
+        #Autoajustar las filas según los datos que se muestren dentro
         self.tabla.resizeRowsToContents()
 
     #Este sirve para actualizar el estado de la incidencia modificada
     def actualizar_estado(self, id_in, nuevo_estado):
         db.actualizar_estado_incidencia(id_in, nuevo_estado)
         self.aplicar_filtros()
-        # 🔹 Actualiza gráficas si hay callback
+
+        #Actualiza gráficas si hay callback
         if self.actualizar_graficas_callback:
             self.actualizar_graficas_callback()
 
@@ -133,6 +135,7 @@ class VisualizacionIncidenciaTab(QWidget):
     def borrar_incidencia(self, id_in):
         db.borrar_incidencia(id_in)
         self.aplicar_filtros()
-        # 🔹 Actualiza gráficas si hay callback
+
+        #Actualiza gráficas si hay callback
         if self.actualizar_graficas_callback:
             self.actualizar_graficas_callback()
