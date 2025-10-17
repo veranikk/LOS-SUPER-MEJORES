@@ -33,7 +33,6 @@ class RegistroIncidenciaTab(QWidget):
         layout.addWidget(self.combo_estado)
 
         #Este muestra un desplegable con las opciones de prioridad que existen, estos se muestran según los que se encuentren dentro de la base de datos
-        ####
         layout.addWidget(QLabel("Prioridad:"))
         self.combo_prioridad = QComboBox()
         self.categorias = db.obtener_categorias()
@@ -52,7 +51,6 @@ class RegistroIncidenciaTab(QWidget):
         self.prioridad_predicha = None
 
     #Este método lo usamos para predecir el tipo de prioridad según el contenidgo del título y de la descripción
-    ####
     def actualizar_prioridad_ia(self):
         titulo = self.input_titulo.text().strip()
         descripcion = self.input_descripcion.text().strip()
