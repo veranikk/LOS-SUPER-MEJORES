@@ -103,7 +103,7 @@ class LoginWindow(QWidget):
 
 # Este abrirá el menú principal
     def abrir_principal(self, id_us=1):
-        """Abre la ventana principal después del login."""
+        #Abre la ventana principal después del login.
         from main_window import MainWindow
         self.main_window = MainWindow(id_us=id_us)
         self.main_window.show()
